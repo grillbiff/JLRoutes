@@ -19,6 +19,7 @@ static NSString *const kJLRouteNamespaceKey = @"JLRouteNamespace";
 static NSString *const kJLRouteWildcardComponentsKey = @"JLRouteWildcardComponents";
 static NSString *const kJLRoutesGlobalNamespaceKey = @"JLRoutesGlobalNamespace";
 
+typedef void (^JLCompletionBlock)(id);
 
 @interface JLRoutes : NSObject
 /** @class JLRoutes
@@ -36,8 +37,8 @@ static NSString *const kJLRoutesGlobalNamespaceKey = @"JLRoutesGlobalNamespace";
 + (BOOL)shouldDecodePlusSymbols;
 
 /// Registers a routePattern with default priority (0) in the receiving scheme namespace.
-+ (void)addRoute:(NSString *)routePattern handler:(BOOL (^)(NSDictionary *parameters))handlerBlock;
-- (void)addRoute:(NSString *)routePattern handler:(BOOL (^)(NSDictionary *parameters))handlerBlock; // instance method
++ (void)addRoute:(NSString *)routePattern handler:(BOOL (^)(NSDictionary *parameters, JLCompletionBlock completionBlock))handlerBlock;
+- (void)addRoute:(NSString *)routePattern handler:(BOOL (^)(NSDictionary *parameters, JLCompletionBlock completionBlock))handlerBlock; // instance method
 
 /// Removes a routePattern from the receiving scheme namespace.
 + (void)removeRoute:(NSString *)routePattern;
@@ -56,15 +57,15 @@ static NSString *const kJLRoutesGlobalNamespaceKey = @"JLRoutesGlobalNamespace";
 /// Registers a routePattern in the global scheme namespace with a handlerBlock to call when the route pattern is matched by a URL.
 /// The block returns a BOOL representing if the handlerBlock actually handled the route or not. If
 /// a block returns NO, JLRoutes will continue trying to find a matching route.
-+ (void)addRoute:(NSString *)routePattern priority:(NSUInteger)priority handler:(BOOL (^)(NSDictionary *parameters))handlerBlock;
-- (void)addRoute:(NSString *)routePattern priority:(NSUInteger)priority handler:(BOOL (^)(NSDictionary *parameters))handlerBlock; // instance method
++ (void)addRoute:(NSString *)routePattern priority:(NSUInteger)priority handler:(BOOL (^)(NSDictionary *parameters, JLCompletionBlock completionBlock))handlerBlock;
+- (void)addRoute:(NSString *)routePattern priority:(NSUInteger)priority handler:(BOOL (^)(NSDictionary *parameters, JLCompletionBlock completionBlock))handlerBlock; // instance method
 
 /// Routes a URL, calling handler blocks (for patterns that match URL) until one returns YES, optionally specifying add'l parameters
-+ (BOOL)routeURL:(NSURL *)URL;
-+ (BOOL)routeURL:(NSURL *)URL withParameters:(NSDictionary *)parameters;
++ (BOOL)routeURL:(NSURL *)URL completionBlock:(JLCompletionBlock)completionBlock;
++ (BOOL)routeURL:(NSURL *)URL withParameters:(NSDictionary *)parameters completionBlock:(JLCompletionBlock)completionBlock;
 
-- (BOOL)routeURL:(NSURL *)URL; // instance method
-- (BOOL)routeURL:(NSURL *)URL withParameters:(NSDictionary *)parameters; // instance method
+- (BOOL)routeURL:(NSURL *)URL completionBlock:(JLCompletionBlock)completionBlock; // instance method
+- (BOOL)routeURL:(NSURL *)URL withParameters:(NSDictionary *)parameters completionBlock:(JLCompletionBlock)completionBlock; // instance method
 
 /// Returns whether a route exists for a URL
 + (BOOL)canRouteURL:(NSURL *)URL;
